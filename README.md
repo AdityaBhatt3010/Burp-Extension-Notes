@@ -172,9 +172,125 @@ def doInBackground(self):
         print("\n[+] Scanning {} {}".format(method, url))
 ```
 
+
+## EXP
+
+Certainly! Let's break this down with a **sample HTTP request** and explain what will be stored in each of the variables in your Burp Suite Extension code (likely written in Jython or Python with the Burp Extender API):
+
 * Parse basic request info:
 
   * URL, HTTP method, full raw request bytes, and host object.
+
+---
+
+### 🔹 **Sample HTTP Request (Raw format)**
+
+```http
+GET /login?user=admin HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Accept: */*
+```
+
+---
+
+### 🧠 Variable Breakdown
+
+Let's say this HTTP request is intercepted by your extension and passed to `message`.
+
+```python
+request_info = self.helpers.analyzeRequest(message)
+```
+
+This line uses Burp’s `IExtensionHelpers.analyzeRequest()` method to get an `IRequestInfo` object from the HTTP message.
+
+---
+
+### 1. `url = request_info.getUrl()`
+
+**Stored value:**
+
+```
+http://example.com/login?user=admin
+```
+
+**What it is:**
+The full URL of the request, including the protocol, host, path, and query parameters.
+
+---
+
+### 2. `method = request_info.getMethod()`
+
+**Stored value:**
+
+```
+GET
+```
+
+**What it is:**
+The HTTP method used in the request (e.g., `GET`, `POST`, `PUT`, `DELETE`, etc.).
+
+---
+
+### 3. `full_request = message.getRequest()`
+
+**Stored value:**
+This will be a **byte array** representing the entire raw HTTP request.
+
+To make it human-readable:
+
+```python
+print(full_request.tostring())
+```
+
+Or decode:
+
+```python
+print(full_request.decode('utf-8'))
+```
+
+**What it is:**
+The entire raw HTTP request as bytes, including headers and body.
+
+---
+
+### 4. `host = message.getHttpService()`
+
+**Stored value (as `IHttpService` object):**
+
+* `host.getHost()` → `example.com`
+* `host.getPort()` → `80`
+* `host.getProtocol()` → `http`
+
+**What it is:**
+An `IHttpService` object from which you can get the **host, port, and protocol**.
+
+---
+
+### 🖨 Final Output of Your Print Statement:
+
+```python
+print("\n[+] Scanning {} {}".format(method, url))
+```
+
+**Console Output:**
+
+```
+[+] Scanning GET http://example.com/login?user=admin
+```
+
+---
+
+### ✅ Summary Table
+
+| Variable       | Type           | Value                                                        |
+| -------------- | -------------- | ------------------------------------------------------------ |
+| `url`          | `java.net.URL` | `http://example.com/login?user=admin`                        |
+| `method`       | `str`          | `GET`                                                        |
+| `full_request` | `byte[]`       | Raw HTTP request (use `.decode()` to view as string)         |
+| `host`         | `IHttpService` | Object with host/port/protocol (`example.com`, `80`, `http`) |
+
+## EXP END
 
 ---
 
